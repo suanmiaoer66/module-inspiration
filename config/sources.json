@@ -5,8 +5,8 @@
     "url": "https://huaban.com/",
     "enabled": true,
     "collector": "public_page",
-    "status": "needs_adapter",
-    "notes": "优先使用公开页面或授权入口，先人工确认采集范围。"
+    "status": "manual_or_authorized_only",
+    "notes": "当前公开请求触发 405 异常访问拦截。首版不做自动抓取，等待授权/API 或使用手动提交。"
   },
   {
     "id": "pinterest-ca",
@@ -14,8 +14,8 @@
     "url": "https://ca.pinterest.com/",
     "enabled": true,
     "collector": "public_page",
-    "status": "needs_adapter",
-    "notes": "不登录、不绕过验证码或访问限制，只处理公开页面。"
+    "status": "manual_or_authorized_only",
+    "notes": "当前公开抓取返回拦截或超时。首版不绕过访问限制，等待授权/API 或使用手动提交。"
   },
   {
     "id": "meiye",
@@ -23,8 +23,8 @@
     "url": "https://meiye.art/",
     "enabled": true,
     "collector": "public_page",
-    "status": "needs_adapter",
-    "notes": "优先采集公开展示内容，保留页面地址作为内部追溯字段。"
+    "status": "enabled_candidate",
+    "notes": "robots 允许公开根路径，禁止 /admin/、/api/、/settings/、/space/。低频增量采集，优先缩略图或预览图。"
   },
   {
     "id": "applore",
@@ -32,8 +32,8 @@
     "url": "https://applore.app/screenshots",
     "enabled": true,
     "collector": "public_page",
-    "status": "needs_adapter",
-    "notes": "适合作为移动端界面素材来源，先确认图片展示和下载许可。"
+    "status": "enabled_candidate",
+    "notes": "公开截图列表结构清晰。robots 禁止 /api/、搜索参数、/c/、saved、account 等路径，首版只采集公开列表页。"
   },
   {
     "id": "uinotes",
@@ -41,7 +41,7 @@
     "url": "https://uinotes.com/?ref=88sheji.cn",
     "enabled": true,
     "collector": "public_page",
-    "status": "needs_adapter",
-    "notes": "适合作为 UI 模块参考来源，采集前检查公开页面规则。"
+    "status": "manual_review",
+    "notes": "robots 禁止 API、搜索、下载和图片详情路径。首版只在确认条款后处理明确允许的公开页面。"
   }
 ]

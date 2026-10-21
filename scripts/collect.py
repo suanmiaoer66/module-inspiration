@@ -24,9 +24,13 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="List and later collect configured inspiration sources.")
     parser.add_argument("--source", help="Only inspect one source by id.")
     parser.add_argument("--dry-run", action="store_true", help="Only list enabled sources; do not download anything.")
+    parser.add_argument("--include-manual", action="store_true", help="Include sources marked manual review; use only after authorization.")
     args = parser.parse_args()
 
-    sources = [source for source in load_sources() if source.get("enabled")]
+    sources = [
+        source for source in load_sources()
+        if source.get("enabled") and (source.get("status") == "enabled_candidate" or args.include_manual)
+    ]
     if args.source:
         sources = [source for source in sources if source["id"] == args.source]
 
