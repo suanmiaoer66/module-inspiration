@@ -21,3 +21,15 @@ python3 -m http.server 4173
 - `recent`：是否进入最近收录
 
 后续采集脚本只需要持续生成同样结构的数据，即可接入当前页面。
+
+## 腾讯云 COS 配置
+
+`TENCENT_SECRET_ID` 和 `TENCENT_SECRET_KEY` 是腾讯云 CAM API 密钥，只放在本地 `.env` 或 GitHub Actions Secrets 中，不要提交到仓库。
+
+当前项目的非敏感配置为：
+
+```env
+COS_REGION=ap-guangzhou
+COS_BUCKET=design-images-1329527832
+COS_DOMAIN=https://design-images-1329527832.cos.ap-guangzhou.myqcloud.com
+```
