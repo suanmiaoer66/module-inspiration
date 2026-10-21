@@ -14,6 +14,7 @@ import json
 import mimetypes
 import os
 import re
+import time
 from pathlib import Path
 from urllib.request import Request, urlopen
 
@@ -34,13 +35,62 @@ def image_data_uri(path: Path) -> str:
     return f"data:{mime};base64,{encoded}"
 
 
-def parse_json_content(content: str) -> dict:
-    cleaned = content.strip()
+def parse_json_content(content) -> dict:
+    """Parse the JSON object returned by a vision model.
+
+    Providers sometimes wrap JSON in Markdown, add a short explanation, or
+    return content as a list of text parts. Accept those harmless variations
+    while keeping the classifier's output contract strict.
+    """
+    if isinstance(content, dict):
+        return content
+    if isinstance(content, list):
+        content = "".join(
+            part.get("text", "") if isinstance(part, dict) else str(part)
+            for part in content
+        )
+    cleaned = str(content or "").strip()
     cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", cleaned, flags=re.IGNORECASE)
-    return json.loads(cleaned)
+    try:
+        parsed = json.loads(cleaned)
+    except json.JSONDecodeError:
+        # Keep the parser tolerant of a sentence before/after the JSON block.
+        match = re.search(r"\{.*\}", cleaned, flags=re.DOTALL)
+        if not match:
+            return {}
+        try:
+            parsed = json.loads(match.group(0))
+        except json.JSONDecodeError:
+            return {}
+    return parsed if isinstance(parsed, dict) else {}
 
 
-def classify_remote(path: Path, allowed_tags: list[str]) -> list[str]:
+def _loose_key(value: str) -> str:
+    return re.sub(r"[\s_\-·•:：/\\]+", "", str(value).strip().lower())
+
+
+def normalize_model_tags(raw_tags, allowed_tags: list[str], aliases: dict[str, str]) -> list[str]:
+    """Map common model variants back to the configured canonical labels."""
+    if isinstance(raw_tags, str):
+        raw_tags = re.split(r"[,，、|/\\]+", raw_tags)
+    if not isinstance(raw_tags, list):
+        raw_tags = []
+
+    lookup = {_loose_key(tag): tag for tag in allowed_tags}
+    lookup.update({_loose_key(alias): target for alias, target in aliases.items()})
+    normalized: list[str] = []
+    for raw_tag in raw_tags:
+        if isinstance(raw_tag, dict):
+            raw_tag = raw_tag.get("name") or raw_tag.get("tag") or raw_tag.get("label")
+        if not raw_tag:
+            continue
+        target = lookup.get(_loose_key(str(raw_tag)))
+        if target in allowed_tags and target not in normalized:
+            normalized.append(target)
+    return normalized[:3]
+
+
+def classify_remote(path: Path, allowed_tags: list[str], aliases: dict[str, str]) -> list[str]:
     api_key = os.environ.get("DEEPSEEK_API_KEY", "").strip()
     if not api_key:
         return []
@@ -48,32 +98,41 @@ def classify_remote(path: Path, allowed_tags: list[str]) -> list[str]:
     model = os.environ.get("DEEPSEEK_VISION_MODEL", "deepseek-flash")
     prompt = (
         "你是 UI 设计素材分类器。只从给定标签中选择 1 到 3 个最匹配的标签。"
-        "只返回 JSON，例如 {\"tags\":[\"弹窗\"]}。"
+        "必须只返回 JSON，例如 {\"tags\":[\"弹窗\"]}，不要 Markdown 或解释。"
         f"给定标签：{json.dumps(allowed_tags, ensure_ascii=False)}。"
         "判断图片中最主要的界面模块，不要根据品牌或应用名称猜测。"
     )
-    body = {
-        "model": model,
-        "temperature": 0,
-        "messages": [
-            {"role": "system", "content": prompt},
-            {"role": "user", "content": [
-                {"type": "text", "text": "请为这张 UI 灵感图选择模块标签。"},
-                {"type": "image_url", "image_url": {"url": image_data_uri(path)}},
-            ]},
-        ],
-    }
-    request = Request(
-        f"{base_url}/chat/completions",
-        data=json.dumps(body).encode("utf-8"),
-        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-        method="POST",
-    )
-    with urlopen(request, timeout=90) as response:
-        result = json.loads(response.read().decode("utf-8"))
-    content = result["choices"][0]["message"]["content"]
-    parsed = parse_json_content(content)
-    return [tag for tag in parsed.get("tags", []) if tag in allowed_tags][:3]
+    for attempt in range(2):
+        body = {
+            "model": model,
+            "temperature": 0,
+            "messages": [
+                {"role": "system", "content": prompt},
+                {"role": "user", "content": [
+                    {"type": "text", "text": "请为这张 UI 灵感图选择模块标签。"},
+                    {"type": "image_url", "image_url": {"url": image_data_uri(path)}},
+                ]},
+            ],
+        }
+        request = Request(
+            f"{base_url}/chat/completions",
+            data=json.dumps(body).encode("utf-8"),
+            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+            method="POST",
+        )
+        with urlopen(request, timeout=90) as response:
+            result = json.loads(response.read().decode("utf-8"))
+        content = result["choices"][0]["message"].get("content", "")
+        parsed = parse_json_content(content)
+        tags = normalize_model_tags(parsed.get("tags"), allowed_tags, aliases)
+        if tags:
+            return tags
+        # A second, stricter request helps when a model returns an empty JSON
+        # object or uses an unrecognized spelling on its first pass.
+        if attempt == 0:
+            prompt += "标签字段不能为空；至少选择一个最接近的标签。"
+            time.sleep(0.4)
+    return []
 
 
 def main() -> int:
@@ -93,15 +152,11 @@ def main() -> int:
     for item in items:
         path = ROOT / item.get("largeImagePath", "")
         try:
-            tags = classify_remote(path, allowed_tags) if path.exists() else []
+            tags = classify_remote(path, allowed_tags, aliases) if path.exists() else []
         except Exception as error:
             print(f"Classification skipped for {item.get('id', 'unknown')}: {error}")
             tags = []
-        normalized = []
-        for tag in tags:
-            tag = aliases.get(tag, tag)
-            if tag in allowed_tags and tag not in normalized:
-                normalized.append(tag)
+        normalized = normalize_model_tags(tags, allowed_tags, aliases)
         item["tags"] = normalized[:3]
         item["status"] = "published" if item["tags"] else "pending_review"
         classified += bool(item["tags"])

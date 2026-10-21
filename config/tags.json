@@ -14,6 +14,7 @@
     "筛选器",
     "下拉菜单",
     "Toast",
+    "状态页",
     "空状态",
     "加载状态",
     "数据看板",
@@ -29,6 +30,8 @@
     "Drawer": "抽屉",
     "Form": "表单",
     "Filter": "筛选器",
+    "Status page": "状态页",
+    "Status": "状态页",
     "Empty state": "空状态",
     "Loading": "加载状态",
     "Dashboard": "数据看板"
