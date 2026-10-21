@@ -1,0 +1,79 @@
+name: Sync inspiration images to COS
+
+on:
+  workflow_dispatch:
+    inputs:
+      smoke_test:
+        description: "Upload a small COS healthcheck file to verify credentials"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: inspiration-cos-sync
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    environment: 蒜苗儿
+    env:
+      TENCENT_SECRET_ID: ${{ secrets.TENCENT_SECRET_ID }}
+      TENCENT_SECRET_KEY: ${{ secrets.TENCENT_SECRET_KEY }}
+      COS_REGION: ${{ vars.COS_REGION }}
+      COS_BUCKET: ${{ vars.COS_BUCKET }}
+      COS_DOMAIN: ${{ vars.COS_DOMAIN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install COS SDK
+        run: python -m pip install -r requirements.txt
+      - name: Check enabled public sources
+        run: python scripts/collect.py --dry-run
+      - name: Verify COS credentials
+        if: ${{ inputs.smoke_test }}
+        run: python scripts/cos_smoke_test.py
+      - name: Sync collected manifest to COS
+        run: python scripts/sync_cos.py
+      - name: Upload site payload
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-payload
+          path: |
+            index.html
+            styles.css
+            app.js
+            data
+            config
+          retention-days: 1
+
+  deploy:
+    needs: collect
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download site payload
+        uses: actions/download-artifact@v4
+        with:
+          name: site-payload
+          path: site
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
