@@ -34,6 +34,11 @@ COS_BUCKET=design-images-1329527832
 COS_DOMAIN=https://design-images-1329527832.cos.ap-guangzhou.myqcloud.com
 ```
 
+前端是公开的 GitHub Pages，因此 COS 中素材对象需要允许匿名读取。请在腾讯云 COS
+控制台将桶设置为“公有读，私有写”（或为 `inspiration/` 前缀配置匿名读权限），保留写入权限
+只给 GitHub Actions 使用。同步脚本也会为新对象写入 `public-read` ACL；如果桶开启了“阻止公有访问”，
+需要先关闭该阻止项，否则浏览器请求素材会返回 403。
+
 可选的 DeepSeek AI 分类配置：
 
 ```env

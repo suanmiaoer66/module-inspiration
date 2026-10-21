@@ -10,7 +10,7 @@ on:
         type: boolean
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -51,6 +51,17 @@ jobs:
         run: python scripts/cos_smoke_test.py
       - name: Sync collected manifest to COS
         run: python scripts/sync_cos.py
+      - name: Persist generated catalog
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/items.json
+          if git diff --cached --quiet; then
+            echo "Catalog unchanged; no commit needed."
+          else
+            git commit -m "chore: update inspiration catalog"
+            git push
+          fi
       - name: Upload site payload
         uses: actions/upload-artifact@v4
         with:

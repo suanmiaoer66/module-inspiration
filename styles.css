@@ -122,6 +122,7 @@ button { color: inherit; }
 .tile:hover .tile-overlay, .tile:focus-within .tile-overlay { opacity: 1; }
 .tile-tags { display: flex; flex-wrap: wrap; gap: 5px; padding-right: 6px; }
 .tile-tag { padding: 4px 7px; border: 1px solid rgba(255,255,255,.18); border-radius: 4px; background: rgba(8,9,11,.62); color: #e5e8ef; font-size: 10px; }
+.pending-tag { border-color: rgba(247, 183, 72, .42); color: #f4c878; }
 .original-link { align-self: flex-start; margin-top: 9px; padding: 0; border: 0; background: transparent; color: white; cursor: pointer; font-size: 11px; }
 .original-link:hover { color: #b9c5ff; }
 .tile-index { position: absolute; top: 9px; right: 9px; padding: 3px 5px; border: 1px solid rgba(255,255,255,.14); border-radius: 4px; background: rgba(8,9,11,.44); color: rgba(255,255,255,.72); font-size: 9px; opacity: 0; transition: opacity .2s ease; }

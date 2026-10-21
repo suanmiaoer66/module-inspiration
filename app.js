@@ -20,7 +20,7 @@ const demoItems = [
 ];
 
 const state = { items: [], filter: "全部", search: "" };
-const moduleChips = ["导航栏", "标签栏", "二级 Tab", "弹窗", "卡片", "表单", "搜索", "状态页", "数据看板"];
+const moduleChips = ["导航栏", "侧边栏", "标签栏", "二级 Tab", "弹窗", "抽屉", "卡片", "列表", "表单", "搜索", "筛选器", "下拉菜单", "Toast", "空状态", "加载状态", "数据看板", "登录注册", "个人中心"];
 
 const $ = (selector) => document.querySelector(selector);
 const gallery = $("#gallery");
@@ -31,9 +31,9 @@ function formatDate() {
 }
 
 function matches(item) {
-  if (item.status === "pending_review") return false;
   const query = state.search.trim().toLowerCase();
   const filterMatch = state.filter === "全部"
+    || (state.filter === "待分类" && item.status === "pending_review")
     || (state.filter === "今日精选" && item.curated)
     || (state.filter === "最近收录" && item.recent)
     || item.tags.some((tag) => tag.includes(state.filter));
@@ -50,10 +50,10 @@ function renderGallery() {
   const visible = state.items.filter(matches);
   gallery.innerHTML = visible.map((item, index) => `
     <article class="tile" tabindex="0" data-item-id="${item.id}">
-      <img src="${item.imageUrl}" alt="${item.tags.join("、")} 模块灵感" loading="lazy" />
+      <img src="${item.imageUrl}" alt="${item.tags.length ? item.tags.join("、") : "待分类"} 模块灵感" loading="lazy" />
       <span class="tile-index">${String(index + 1).padStart(2, "0")}</span>
       <div class="tile-overlay">
-        <div class="tile-tags">${item.tags.map((tag) => `<span class="tile-tag">${tag}</span>`).join("")}</div>
+        <div class="tile-tags">${item.tags.length ? item.tags.map((tag) => `<span class="tile-tag">${tag}</span>`).join("") : '<span class="tile-tag pending-tag">待分类</span>'}</div>
         <button class="original-link" type="button" data-preview="${item.id}">查看大图 ↗</button>
       </div>
     </article>
@@ -105,8 +105,10 @@ function openPreview(itemId) {
   const item = state.items.find((entry) => entry.id === itemId);
   if (!item) return;
   $("#previewImage").src = item.largeImageUrl || item.imageUrl;
-  $("#previewImage").alt = `${item.tags.join("、")} 模块大图`;
-  $("#previewTags").innerHTML = item.tags.map((tag) => `<span class="tile-tag">${tag}</span>`).join("");
+  $("#previewImage").alt = `${item.tags.length ? item.tags.join("、") : "待分类"} 模块大图`;
+  $("#previewTags").innerHTML = item.tags.length
+    ? item.tags.map((tag) => `<span class="tile-tag">${tag}</span>`).join("")
+    : '<span class="tile-tag pending-tag">待分类</span>';
   $("#previewModal").hidden = false;
   document.body.classList.add("modal-open");
   $("#previewClose").focus();

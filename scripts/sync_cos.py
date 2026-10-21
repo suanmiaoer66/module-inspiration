@@ -58,6 +58,11 @@ def upload(client: CosS3Client, bucket: str, path: Path, key: str) -> None:
         LocalFilePath=str(path),
         Key=key,
         ContentType=content_type,
+        # The static GitHub Pages site reads the catalog without credentials.
+        # Mark each generated object as publicly readable so its COS URL can be
+        # rendered directly by the browser. If the bucket blocks public ACLs,
+        # the bucket's anonymous read policy must be enabled in Tencent Cloud.
+        ACL="public-read",
     )
 
 
