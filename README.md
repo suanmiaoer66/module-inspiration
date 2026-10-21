@@ -33,3 +33,16 @@ COS_REGION=ap-guangzhou
 COS_BUCKET=design-images-1329527832
 COS_DOMAIN=https://design-images-1329527832.cos.ap-guangzhou.myqcloud.com
 ```
+
+## 手动验证 COS
+
+仓库中的 `.github/workflows/cos-sync.yml` 当前只支持手动运行：
+
+1. 打开 GitHub 仓库的 **Actions**。
+2. 选择 **Sync inspiration images to COS**。
+3. 点击 **Run workflow**。
+4. 保持 `smoke_test` 为 `true`，点击运行。
+
+成功后会在 COS 的 `system/codex-cos-healthcheck.txt` 写入一个很小的测试文件，并继续部署当前网站。没有 `staging/manifest.json` 时，素材同步会安全跳过，不会上传示例图片。
+
+真正的每日采集会在 Applore 和美叶的来源适配器完成后再启用定时触发。
