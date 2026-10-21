@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Classify staged images with an optional OpenAI-compatible vision endpoint.
+"""Classify staged images with an optional DeepSeek vision endpoint.
 
 When no API key is configured, the script keeps items as pending_review instead
 of inventing labels. The scheduled Codex workflow can classify the same
@@ -41,11 +41,11 @@ def parse_json_content(content: str) -> dict:
 
 
 def classify_remote(path: Path, allowed_tags: list[str]) -> list[str]:
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = os.environ.get("DEEPSEEK_API_KEY", "").strip()
     if not api_key:
         return []
-    base_url = (os.environ.get("OPENAI_BASE_URL", "").strip() or "https://api.openai.com/v1").rstrip("/")
-    model = os.environ.get("OPENAI_VISION_MODEL", "gpt-4o-mini")
+    base_url = (os.environ.get("DEEPSEEK_BASE_URL", "").strip() or "https://api.deepseek.com").rstrip("/")
+    model = os.environ.get("DEEPSEEK_VISION_MODEL", "deepseek-flash")
     prompt = (
         "你是 UI 设计素材分类器。只从给定标签中选择 1 到 3 个最匹配的标签。"
         "只返回 JSON，例如 {\"tags\":[\"弹窗\"]}。"
@@ -55,7 +55,6 @@ def classify_remote(path: Path, allowed_tags: list[str]) -> list[str]:
     body = {
         "model": model,
         "temperature": 0,
-        "response_format": {"type": "json_object"},
         "messages": [
             {"role": "system", "content": prompt},
             {"role": "user", "content": [
@@ -87,8 +86,8 @@ def main() -> int:
     allowed_tags = tag_config.get("primary", [])
     aliases = tag_config.get("aliases", {})
 
-    if not os.environ.get("OPENAI_API_KEY", "").strip():
-        print("OPENAI_API_KEY is not configured; keeping collected items as pending_review.")
+    if not os.environ.get("DEEPSEEK_API_KEY", "").strip():
+        print("DEEPSEEK_API_KEY is not configured; keeping collected items as pending_review.")
 
     classified = 0
     for item in items:

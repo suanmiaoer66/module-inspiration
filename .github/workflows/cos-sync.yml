@@ -28,9 +28,9 @@ jobs:
       COS_REGION: ${{ vars.COS_REGION }}
       COS_BUCKET: ${{ vars.COS_BUCKET }}
       COS_DOMAIN: ${{ vars.COS_DOMAIN }}
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      OPENAI_BASE_URL: ${{ vars.OPENAI_BASE_URL }}
-      OPENAI_VISION_MODEL: ${{ vars.OPENAI_VISION_MODEL }}
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      DEEPSEEK_BASE_URL: ${{ vars.DEEPSEEK_BASE_URL }}
+      DEEPSEEK_VISION_MODEL: ${{ vars.DEEPSEEK_VISION_MODEL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

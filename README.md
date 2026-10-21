@@ -34,15 +34,15 @@ COS_BUCKET=design-images-1329527832
 COS_DOMAIN=https://design-images-1329527832.cos.ap-guangzhou.myqcloud.com
 ```
 
-可选的 AI 分类配置：
+可选的 DeepSeek AI 分类配置：
 
 ```env
-OPENAI_API_KEY=
-OPENAI_BASE_URL=https://api.openai.com/v1
-OPENAI_VISION_MODEL=gpt-4o-mini
+DEEPSEEK_API_KEY=
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+DEEPSEEK_VISION_MODEL=deepseek-flash
 ```
 
-如果没有配置 `OPENAI_API_KEY`，采集结果会保留为 `pending_review`，不会被前端展示，也不会被自动贴上错误标签。
+如果没有配置 `DEEPSEEK_API_KEY`，采集结果会保留为 `pending_review`，不会被前端展示，也不会被自动贴上错误标签。
 
 ## 手动验证 COS
 
