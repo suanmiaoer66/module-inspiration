@@ -1,0 +1,47 @@
+[
+  {
+    "id": "huaban",
+    "name": "花瓣",
+    "url": "https://huaban.com/",
+    "enabled": true,
+    "collector": "public_page",
+    "status": "needs_adapter",
+    "notes": "优先使用公开页面或授权入口，先人工确认采集范围。"
+  },
+  {
+    "id": "pinterest-ca",
+    "name": "Pinterest",
+    "url": "https://ca.pinterest.com/",
+    "enabled": true,
+    "collector": "public_page",
+    "status": "needs_adapter",
+    "notes": "不登录、不绕过验证码或访问限制，只处理公开页面。"
+  },
+  {
+    "id": "meiye",
+    "name": "美叶",
+    "url": "https://meiye.art/",
+    "enabled": true,
+    "collector": "public_page",
+    "status": "needs_adapter",
+    "notes": "优先采集公开展示内容，保留页面地址作为内部追溯字段。"
+  },
+  {
+    "id": "applore",
+    "name": "Applore Screenshots",
+    "url": "https://applore.app/screenshots",
+    "enabled": true,
+    "collector": "public_page",
+    "status": "needs_adapter",
+    "notes": "适合作为移动端界面素材来源，先确认图片展示和下载许可。"
+  },
+  {
+    "id": "uinotes",
+    "name": "UI Notes",
+    "url": "https://uinotes.com/?ref=88sheji.cn",
+    "enabled": true,
+    "collector": "public_page",
+    "status": "needs_adapter",
+    "notes": "适合作为 UI 模块参考来源，采集前检查公开页面规则。"
+  }
+]

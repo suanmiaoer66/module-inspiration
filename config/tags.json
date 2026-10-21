@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "primary": [
+    "导航栏",
+    "侧边栏",
+    "标签栏",
+    "二级 Tab",
+    "弹窗",
+    "抽屉",
+    "卡片",
+    "列表",
+    "表单",
+    "搜索",
+    "筛选器",
+    "下拉菜单",
+    "Toast",
+    "空状态",
+    "加载状态",
+    "数据看板",
+    "登录注册",
+    "个人中心"
+  ],
+  "aliases": {
+    "标签页": "标签栏",
+    "Tabs": "二级 Tab",
+    "Tab": "二级 Tab",
+    "Modal": "弹窗",
+    "Dialog": "弹窗",
+    "Drawer": "抽屉",
+    "Form": "表单",
+    "Filter": "筛选器",
+    "Empty state": "空状态",
+    "Loading": "加载状态",
+    "Dashboard": "数据看板"
+  },
+  "rules": {
+    "maxTagsPerItem": 3,
+    "requirePrimaryTag": true,
+    "lowConfidenceStatus": "pending_review"
+  }
+}

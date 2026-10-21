@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#08090b" />
+    <meta name="description" content="按 UI 模块整理的设计灵感库" />
+    <title>模块灵感库</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar">
+        <div class="brand-row">
+          <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div>
+            <p class="brand-name">模块灵感库</p>
+            <p class="brand-caption">UI MODULE ARCHIVE</p>
+          </div>
+          <button class="icon-button sidebar-close" id="closeSidebar" type="button" aria-label="关闭菜单">×</button>
+        </div>
+
+        <div class="workspace-select">
+          <span class="workspace-dot"></span>
+          <span>设计素材工作台</span>
+          <span class="chevron">⌄</span>
+        </div>
+
+        <nav class="nav-section" aria-label="素材分类">
+          <p class="nav-label">素材库</p>
+          <button class="nav-item active" type="button" data-filter="全部"><span class="nav-icon">▦</span><span>全部模块</span><span class="nav-count" id="allCount">0</span></button>
+          <button class="nav-item" type="button" data-filter="今日精选"><span class="nav-icon">✦</span><span>今日精选</span></button>
+          <button class="nav-item" type="button" data-filter="最近收录"><span class="nav-icon">◷</span><span>最近收录</span></button>
+        </nav>
+
+        <nav class="nav-section module-nav" aria-label="模块分类">
+          <p class="nav-label">模块分类</p>
+          <button class="nav-item" type="button" data-filter="导航栏"><span class="nav-icon">↔</span><span>导航栏</span></button>
+          <button class="nav-item" type="button" data-filter="标签栏"><span class="nav-icon">▤</span><span>标签栏</span></button>
+          <button class="nav-item" type="button" data-filter="二级 Tab"><span class="nav-icon">≡</span><span>二级 Tab</span></button>
+          <button class="nav-item" type="button" data-filter="弹窗"><span class="nav-icon">□</span><span>弹窗与抽屉</span></button>
+          <button class="nav-item" type="button" data-filter="卡片"><span class="nav-icon">▣</span><span>卡片与列表</span></button>
+          <button class="nav-item" type="button" data-filter="表单"><span class="nav-icon">⌁</span><span>表单与输入</span></button>
+          <button class="nav-item" type="button" data-filter="搜索"><span class="nav-icon">⌕</span><span>搜索与筛选</span></button>
+          <button class="nav-item" type="button" data-filter="状态页"><span class="nav-icon">◌</span><span>状态页</span></button>
+          <button class="nav-item" type="button" data-filter="数据看板"><span class="nav-icon">▥</span><span>数据看板</span></button>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <div class="storage-status"><span class="status-dot"></span><span>素材库已同步</span><span class="sync-time">刚刚</span></div>
+          <div class="sidebar-footer">每日自动采集 · COS CDN</div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <button class="icon-button menu-button" id="openSidebar" type="button" aria-label="打开菜单">≡</button>
+          <div class="breadcrumbs"><span>素材库</span><span class="crumb-divider">/</span><strong id="currentFilter">全部模块</strong></div>
+          <div class="top-actions">
+            <label class="search-box" for="searchInput">
+              <span class="search-icon">⌕</span>
+              <input id="searchInput" type="search" placeholder="搜索模块标签" autocomplete="off" />
+              <span class="search-key">⌘ K</span>
+            </label>
+            <button class="top-action" type="button" id="refreshButton"><span>↻</span><span>刷新</span></button>
+            <button class="avatar-button" type="button" aria-label="账户">灵</button>
+          </div>
+        </header>
+
+        <div class="content-wrap">
+          <section class="page-intro">
+            <div>
+              <p class="eyebrow">DAILY CURATION <span class="eyebrow-line"></span> <span id="todayLabel"></span></p>
+              <h1>今日精选</h1>
+              <p class="intro-copy">把值得参考的界面模块，整理成随时可检索的视觉资料库。</p>
+            </div>
+            <div class="result-meta"><strong id="resultCount">0</strong><span>个模块</span></div>
+          </section>
+
+          <div class="filter-strip" aria-label="快速筛选">
+            <span class="filter-title">快速筛选</span>
+            <div class="chip-list" id="chipList"></div>
+            <button class="clear-filter" type="button" id="clearFilter">清除筛选</button>
+          </div>
+
+          <section class="gallery" id="gallery" aria-live="polite"></section>
+          <section class="empty-state" id="emptyState" hidden>
+            <span class="empty-symbol">⌕</span>
+            <h2>没有找到匹配的模块</h2>
+            <p>换一个标签或清除搜索条件试试。</p>
+          </section>
+        </div>
+      </main>
+    </div>
+    <div class="scrim" id="scrim"></div>
+    <div class="preview-modal" id="previewModal" hidden>
+      <div class="preview-backdrop" id="previewBackdrop"></div>
+      <section class="preview-dialog" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+        <div class="preview-head">
+          <div>
+            <p class="preview-kicker">MODULE PREVIEW</p>
+            <h2 id="previewTitle">查看大图</h2>
+          </div>
+          <button class="preview-close" id="previewClose" type="button" aria-label="关闭预览">×</button>
+        </div>
+        <div class="preview-stage"><img id="previewImage" alt="" /></div>
+        <div class="preview-foot"><div class="preview-tags" id="previewTags"></div></div>
+      </section>
+    </div>
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>
