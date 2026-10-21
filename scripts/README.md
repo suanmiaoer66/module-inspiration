@@ -1,14 +1,15 @@
 # 自动采集脚本
 
-`collect.py` 和 `classify.py` 目前是安全的接入骨架：
+`collect.py` 和 `classify.py` 目前是安全的接入骨架。采集器只对已标记为 `enabled_candidate` 的公开页面运行：
 
 ```bash
 python3 scripts/collect.py --dry-run
 python3 scripts/collect.py --source applore --dry-run
+python3 scripts/collect.py --source applore --limit 3 --delay 2
 python3 scripts/classify.py
 ```
 
-下一步为每个来源增加独立 adapter，并在确认公开访问规则后再开启下载。采集器输出统一写入 `data/items.json`，图片缩略图和大图上传腾讯云 COS。
+采集器输出统一写入 `staging/manifest.json`，并将下载的预览图放到 `staging/images/`。`staging/` 已加入 `.gitignore`，不会上传到 GitHub。确认素材授权和标签后，再运行 COS 同步。
 
 ## COS manifest 格式
 

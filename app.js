@@ -31,6 +31,7 @@ function formatDate() {
 }
 
 function matches(item) {
+  if (item.status === "pending_review") return false;
   const query = state.search.trim().toLowerCase();
   const filterMatch = state.filter === "全部"
     || (state.filter === "今日精选" && item.curated)
