@@ -47,7 +47,13 @@ DEEPSEEK_BASE_URL=https://api.deepseek.com
 DEEPSEEK_VISION_MODEL=deepseek-flash
 ```
 
-如果没有配置 `DEEPSEEK_API_KEY`，采集结果会保留为 `pending_review`，不会被前端展示，也不会被自动贴上错误标签。
+COS 工作流默认只采集图片并将新素材放入“待分类”。在 Actions 的运行参数中将
+`classify_with_ai` 改为 `true`，才会让 DeepSeek 提供自动标签建议；手动确认更适合需要
+精确模块标签的素材库。网页预览中的“保存分类”会保存到当前浏览器的 localStorage，
+适合个人审核；如果要让标签同步到所有设备，需要把确认后的标签写回 `data/items.json`
+并提交到仓库。工作流会保留已有目录中同一素材的手动标签。
+
+如果没有配置 `DEEPSEEK_API_KEY`，采集结果会保留为 `pending_review`，显示在“未分类”中，不会被自动贴上标签。
 
 ## 手动验证 COS
 

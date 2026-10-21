@@ -31,7 +31,7 @@
           <button class="nav-item active" type="button" data-filter="全部"><span class="nav-icon">▦</span><span>全部模块</span><span class="nav-count" id="allCount">0</span></button>
           <button class="nav-item" type="button" data-filter="今日精选"><span class="nav-icon">✦</span><span>今日精选</span></button>
           <button class="nav-item" type="button" data-filter="最近收录"><span class="nav-icon">◷</span><span>最近收录</span></button>
-          <button class="nav-item" type="button" data-filter="待分类"><span class="nav-icon">?</span><span>待分类</span></button>
+          <button class="nav-item" type="button" data-filter="未分类"><span class="nav-icon">?</span><span>未分类</span></button>
         </nav>
 
         <nav class="nav-section module-nav" aria-label="模块分类">
@@ -105,7 +105,16 @@
           <button class="preview-close" id="previewClose" type="button" aria-label="关闭预览">×</button>
         </div>
         <div class="preview-stage"><img id="previewImage" alt="" /></div>
-        <div class="preview-foot"><div class="preview-tags" id="previewTags"></div></div>
+        <div class="preview-foot">
+          <div class="preview-meta">
+            <div class="preview-tags" id="previewTags"></div>
+            <p class="manual-hint" id="manualHint">可手动选择模块标签，保存后仅保存在当前浏览器。</p>
+          </div>
+          <div class="manual-classifier">
+            <div class="manual-tag-list" id="manualTagList" aria-label="手动分类标签"></div>
+            <button class="manual-save" id="manualSaveTags" type="button">保存分类</button>
+          </div>
+        </div>
       </section>
     </div>
     <script src="./app.js" type="module"></script>

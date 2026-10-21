@@ -19,8 +19,9 @@ const demoItems = [
   { id: "m-018", imageUrl: "https://picsum.photos/seed/module-018/900/1140", largeImageUrl: "https://picsum.photos/seed/module-018/1600/2026", tags: ["个人中心", "列表"], curated: false, recent: true }
 ];
 
-const state = { items: [], filter: "全部", search: "" };
+const state = { items: [], filter: "全部", search: "", activePreviewId: null };
 const moduleChips = ["导航栏", "侧边栏", "标签栏", "二级 Tab", "弹窗", "抽屉", "卡片", "列表", "表单", "搜索", "筛选器", "下拉菜单", "Toast", "空状态", "加载状态", "数据看板", "登录注册", "个人中心"];
+const MANUAL_TAGS_KEY = "module-inspiration:manual-tags";
 
 const $ = (selector) => document.querySelector(selector);
 const gallery = $("#gallery");
@@ -33,7 +34,7 @@ function formatDate() {
 function matches(item) {
   const query = state.search.trim().toLowerCase();
   const filterMatch = state.filter === "全部"
-    || (state.filter === "待分类" && item.status === "pending_review")
+    || (state.filter === "未分类" && item.status === "pending_review")
     || (state.filter === "今日精选" && item.curated)
     || (state.filter === "最近收录" && item.recent)
     || item.tags.some((tag) => tag.includes(state.filter));
@@ -46,14 +47,39 @@ function renderChips() {
   document.querySelectorAll("[data-chip]").forEach((button) => button.addEventListener("click", () => setFilter(button.dataset.chip)));
 }
 
+function readManualTags() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(MANUAL_TAGS_KEY) || "{}");
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function applyManualTags(items) {
+  const overrides = readManualTags();
+  return items.map((item) => {
+    const tags = Array.isArray(overrides[item.id]) ? overrides[item.id].filter((tag) => moduleChips.includes(tag)) : item.tags;
+    return tags !== item.tags ? { ...item, tags, status: tags.length ? "published" : "pending_review" } : item;
+  });
+}
+
+function renderManualTagPicker(item) {
+  const picker = $("#manualTagList");
+  if (!picker) return;
+  picker.innerHTML = moduleChips.map((tag) => `
+    <button class="manual-tag ${item.tags.includes(tag) ? "selected" : ""}" type="button" data-manual-tag="${tag}">${tag}</button>
+  `).join("");
+}
+
 function renderGallery() {
   const visible = state.items.filter(matches);
   gallery.innerHTML = visible.map((item, index) => `
     <article class="tile" tabindex="0" data-item-id="${item.id}">
-      <img src="${item.imageUrl}" alt="${item.tags.length ? item.tags.join("、") : "待分类"} 模块灵感" loading="lazy" />
+      <img src="${item.imageUrl}" alt="${item.tags.length ? item.tags.join("、") : "未分类"} 模块灵感" loading="lazy" />
       <span class="tile-index">${String(index + 1).padStart(2, "0")}</span>
       <div class="tile-overlay">
-        <div class="tile-tags">${item.tags.length ? item.tags.map((tag) => `<span class="tile-tag">${tag}</span>`).join("") : '<span class="tile-tag pending-tag">待分类</span>'}</div>
+        <div class="tile-tags">${item.tags.length ? item.tags.map((tag) => `<span class="tile-tag">${tag}</span>`).join("") : '<span class="tile-tag pending-tag">未分类</span>'}</div>
         <button class="original-link" type="button" data-preview="${item.id}">查看大图 ↗</button>
       </div>
     </article>
@@ -92,6 +118,11 @@ function bindEvents() {
   $("#scrim").addEventListener("click", closeSidebar);
   $("#previewClose").addEventListener("click", closePreview);
   $("#previewBackdrop").addEventListener("click", closePreview);
+  $("#manualTagList").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-manual-tag]");
+    if (button) button.classList.toggle("selected");
+  });
+  $("#manualSaveTags").addEventListener("click", saveManualTags);
   document.addEventListener("keydown", (event) => {
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); $("#searchInput").focus(); }
     if (event.key === "Escape") { closeSidebar(); closePreview(); }
@@ -104,14 +135,36 @@ function closeSidebar() { $("#sidebar").classList.remove("open"); $("#scrim").cl
 function openPreview(itemId) {
   const item = state.items.find((entry) => entry.id === itemId);
   if (!item) return;
+  state.activePreviewId = itemId;
   $("#previewImage").src = item.largeImageUrl || item.imageUrl;
-  $("#previewImage").alt = `${item.tags.length ? item.tags.join("、") : "待分类"} 模块大图`;
+  $("#previewImage").alt = `${item.tags.length ? item.tags.join("、") : "未分类"} 模块大图`;
   $("#previewTags").innerHTML = item.tags.length
     ? item.tags.map((tag) => `<span class="tile-tag">${tag}</span>`).join("")
-    : '<span class="tile-tag pending-tag">待分类</span>';
+    : '<span class="tile-tag pending-tag">未分类</span>';
+  renderManualTagPicker(item);
+  $("#manualHint").textContent = item.tags.length ? "已选择标签，可继续调整。保存后仅保存在当前浏览器。" : "请选择模块标签，保存后仅保存在当前浏览器。";
   $("#previewModal").hidden = false;
   document.body.classList.add("modal-open");
   $("#previewClose").focus();
+}
+
+function saveManualTags() {
+  const item = state.items.find((entry) => entry.id === state.activePreviewId);
+  if (!item) return;
+  const tags = [...document.querySelectorAll("[data-manual-tag].selected")].map((button) => button.dataset.manualTag);
+  item.tags = tags;
+  item.status = tags.length ? "published" : "pending_review";
+  const overrides = readManualTags();
+  overrides[item.id] = tags;
+  try {
+    localStorage.setItem(MANUAL_TAGS_KEY, JSON.stringify(overrides));
+  } catch {
+    $("#manualHint").textContent = "浏览器未允许保存，请检查隐私设置。";
+    return;
+  }
+  $("#manualHint").textContent = "已保存到当前浏览器。";
+  openPreview(item.id);
+  renderGallery();
 }
 
 function closePreview() {
@@ -124,9 +177,10 @@ async function loadItems() {
   try {
     const response = await fetch("./data/items.json", { cache: "no-store" });
     if (!response.ok) throw new Error("items.json unavailable");
-    state.items = await response.json();
+    // The old m-* records are UI placeholders, not collected assets.
+    state.items = applyManualTags((await response.json()).filter((item) => !String(item.id).startsWith("m-")));
   } catch {
-    state.items = demoItems;
+    state.items = [];
   }
   $("#allCount").textContent = state.items.length;
   $("#todayLabel").textContent = formatDate();

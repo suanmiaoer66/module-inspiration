@@ -105,6 +105,11 @@ def main() -> int:
             print("Skipping manifest item without id.")
             continue
         tags = normalize_tags(item.get("tags"), allowed_tags, aliases)
+        # A manual review may already have assigned tags to this item in the
+        # catalog. Keep those tags when a later collection run intentionally
+        # leaves the incoming item unclassified.
+        if not tags and item_id in by_id:
+            tags = normalize_tags(by_id[item_id].get("tags"), allowed_tags, aliases)
         thumb_path = Path(item.get("thumbnailPath", ""))
         large_path = Path(item.get("largeImagePath", ""))
         if not thumb_path.is_absolute():

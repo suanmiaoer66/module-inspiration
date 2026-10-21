@@ -8,6 +8,11 @@ on:
         required: true
         default: true
         type: boolean
+      classify_with_ai:
+        description: "Use DeepSeek to suggest tags (off keeps every new item unclassified)"
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -45,6 +50,7 @@ jobs:
       - name: Collect public previews
         run: python scripts/collect.py --limit 6 --delay 1
       - name: Classify collected previews
+        if: ${{ inputs.classify_with_ai }}
         run: python scripts/classify.py
       - name: Verify COS credentials
         if: ${{ inputs.smoke_test }}

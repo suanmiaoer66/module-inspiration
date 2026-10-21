@@ -145,7 +145,16 @@ button { color: inherit; }
 .preview-close:hover { border-color: #4b5260; color: var(--text); }
 .preview-stage { display: grid; place-items: center; min-height: 200px; overflow: auto; padding: 22px; background: #090a0d; }
 .preview-stage img { display: block; max-width: 100%; max-height: 70dvh; width: auto; height: auto; object-fit: contain; border: 1px solid rgba(255,255,255,.08); border-radius: 5px; background: #171a20; }
-.preview-foot { display: flex; align-items: center; justify-content: space-between; gap: 15px; flex: 0 0 auto; min-height: 52px; padding: 10px 20px; border-top: 1px solid var(--line); color: var(--faint); font-size: 10px; }
+.preview-foot { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; flex: 0 0 auto; min-height: 52px; padding: 12px 20px; border-top: 1px solid var(--line); color: var(--faint); font-size: 10px; }
+.preview-meta { min-width: 140px; }
+.manual-hint { margin: 8px 0 0; color: var(--faint); font-size: 10px; line-height: 1.45; }
+.manual-classifier { display: flex; flex: 1; align-items: flex-end; justify-content: flex-end; gap: 10px; }
+.manual-tag-list { display: flex; max-width: 650px; flex-wrap: wrap; justify-content: flex-end; gap: 5px; }
+.manual-tag { padding: 5px 7px; border: 1px solid var(--line); border-radius: 4px; background: transparent; color: var(--muted); cursor: pointer; font-size: 10px; }
+.manual-tag:hover { border-color: #59678e; color: var(--text); }
+.manual-tag.selected { border-color: rgba(91,124,255,.62); background: var(--accent-soft); color: #c3ccff; }
+.manual-save { flex: 0 0 auto; padding: 7px 10px; border: 1px solid rgba(91,124,255,.48); border-radius: 5px; background: rgba(91,124,255,.12); color: #c3ccff; cursor: pointer; font-size: 10px; }
+.manual-save:hover { background: rgba(91,124,255,.22); }
 .preview-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .preview-tags .tile-tag { background: rgba(91,124,255,.1); border-color: rgba(91,124,255,.32); color: #bdc8ff; }
 body.modal-open { overflow: hidden; }
@@ -178,6 +187,10 @@ body.modal-open { overflow: hidden; }
   .chip-list { width: 100%; }
   .clear-filter { align-self: end; }
   .gallery { column-width: 145px; column-gap: 8px; }
+  .preview-foot { flex-direction: column; gap: 12px; padding: 12px; }
+  .manual-classifier { width: 100%; align-items: stretch; flex-direction: column; }
+  .manual-tag-list { max-width: none; justify-content: flex-start; }
+  .manual-save { align-self: flex-end; }
   .tile { margin-bottom: 8px; }
   .tile-overlay { padding: 8px; }
   .tile-tag { padding: 3px 5px; font-size: 9px; }
